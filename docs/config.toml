@@ -1,0 +1,34 @@
+site_name = "logchef-nix"
+base_path = "/logchef-nix"
+footer_text = "logchef-nix · native Nix packaging for Logchef"
+disable_moat_citation = false
+
+[highlight]
+light = "github"
+dark = "github-dark"
+
+[search]
+enabled = true
+
+[[links]]
+title = "logchef-nix"
+url = "https://github.com/oddship/logchef-nix"
+icon = "github"
+
+[[links]]
+title = "Logchef"
+url = "https://github.com/mr-karan/logchef"
+icon = "github"
+
+[[topnav]]
+title = "Getting started"
+url = "/getting-started/install/"
+
+[[topnav]]
+title = "Operations"
+url = "/operations/secrets/"
+
+[[topnav_more]]
+title = "Upstream Logchef"
+url = "https://github.com/mr-karan/logchef"
+icon = "github"

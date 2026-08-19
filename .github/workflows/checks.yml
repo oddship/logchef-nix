@@ -1,0 +1,50 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Nix checks (x86_64-linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out the change
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          enable_kvm: true
+
+      - name: Check formatting
+        run: |
+          nix fmt
+          git diff --exit-code
+
+      - name: Evaluate every supported system
+        run: nix flake check --all-systems --no-build
+
+      - name: Build package, module evaluation, and VM check
+        run: >-
+          nix build
+          .#checks.x86_64-linux.package
+          .#checks.x86_64-linux.moduleEvaluation
+          .#checks.x86_64-linux.vm
+          -L --no-link
+
+      - name: Lint GitHub Actions
+        run: nix run nixpkgs#actionlint

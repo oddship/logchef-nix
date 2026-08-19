@@ -1,0 +1,25 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - docs/**
+      - .github/workflows/docs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  docs:
+    # Moat supplies the build, Pages artifact, and deployment steps.
+    # Pinning the reusable workflow keeps a docs change reproducible; review
+    # this SHA when intentionally upgrading Moat's Pages workflow.
+    uses: oddship/moat/.github/workflows/build-docs.yml@45bc607ff197ee71f6c7eb9ce3dc16fdc7b76a67
+    with:
+      docs_dir: docs
+      moat_version: v0.6.2

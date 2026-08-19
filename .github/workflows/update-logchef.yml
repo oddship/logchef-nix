@@ -1,0 +1,134 @@
+name: Update Logchef
+
+on:
+  schedule:
+    # GitHub cannot subscribe this repository to another repository's release
+    # event, so check the upstream stable release once per day.
+    - cron: "17 05 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: logchef-upstream-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Refresh the pinned Logchef release
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          enable_kvm: true
+
+      - name: Check the latest stable upstream release
+        id: upstream
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(gh api repos/mr-karan/logchef/releases/latest --jq .tag_name)"
+          case "$latest_tag" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *)
+              echo "Unexpected upstream release tag: $latest_tag" >&2
+              exit 1
+              ;;
+          esac
+
+          current_version="$(sed -nE 's/^[[:space:]]*version = "([^"]+)";/\1/p' package.nix | head -n1)"
+          latest_version="${latest_tag#v}"
+
+          {
+            echo "tag=$latest_tag"
+            echo "version=$latest_version"
+            if [[ "$current_version" == "$latest_version" ]]; then
+              echo "needs_update=false"
+              echo "Logchef is already pinned to $latest_tag."
+            else
+              echo "needs_update=true"
+              echo "Updating Logchef $current_version -> $latest_version."
+            fi
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Refresh source and dependency hashes
+        if: steps.upstream.outputs.needs_update == 'true'
+        run: ./update.sh
+
+      - name: Run the release checks
+        if: steps.upstream.outputs.needs_update == 'true'
+        run: nix flake check -L
+
+      - name: Commit the update branch
+        if: steps.upstream.outputs.needs_update == 'true'
+        id: branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.upstream.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          branch="automation/logchef-${VERSION}"
+          git checkout -B "$branch"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The updater produced no changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(logchef): update to v${VERSION}"
+          git -c "http.extraheader=AUTHORIZATION: bearer ${GH_TOKEN}" \
+            push --force-with-lease origin "$branch"
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+      - name: Open or reuse the update pull request
+        if: steps.branch.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.branch }}
+          VERSION: ${{ steps.upstream.outputs.version }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+
+          open_prs="$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')"
+          if [[ "$open_prs" == "0" ]]; then
+            gh pr create \
+              --base "$BASE" \
+              --head "$BRANCH" \
+              --title "chore(logchef): update to v${VERSION}" \
+              --body "## Summary
+
+              Updates the pinned Logchef source release and fixed dependency hashes to v${VERSION}.
+
+              ## Verification
+
+              - nix flake check -L passed in the updater workflow.
+              - The source, Go vendor tree, and Bun dependency tree remain hash-pinned.
+              - Review upstream release notes and migrations before merging."
+          else
+            echo "An open update PR already exists for $BRANCH."
+          fi
