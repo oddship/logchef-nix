@@ -74,17 +74,21 @@ jobs:
           current_version="$(sed -nE 's/^[[:space:]]*version = "([^"]+)";/\1/p' package.nix | head -n1)"
           latest_version="${latest_tag#v}"
 
+          if [[ "$current_version" == "$latest_version" ]]; then
+            needs_update=false
+            status_message="Logchef is already pinned to $latest_tag."
+          else
+            needs_update=true
+            status_message="Updating Logchef $current_version -> $latest_version."
+          fi
+
           {
             echo "tag=$latest_tag"
             echo "version=$latest_version"
-            if [[ "$current_version" == "$latest_version" ]]; then
-              echo "needs_update=false"
-              echo "Logchef is already pinned to $latest_tag."
-            else
-              echo "needs_update=true"
-              echo "Updating Logchef $current_version -> $latest_version."
-            fi
+            echo "needs_update=$needs_update"
           } >> "$GITHUB_OUTPUT"
+
+          echo "$status_message"
 
       - name: Refresh source and dependency hashes
         if: steps.upstream.outputs.needs_update == 'true'
