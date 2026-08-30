@@ -263,12 +263,15 @@ around a failing or incomplete update.
 
 ## Automated updates
 
-`.github/workflows/update-logchef.yml` checks the latest stable Logchef release
-once a day and can also be started with **Run workflow**. When the upstream tag
-is newer, it runs `update.sh`, executes `nix flake check -L`, and opens a branch
-and pull request with the refreshed source and dependency hashes. It does not
-merge or deploy automatically; review upstream release notes, migrations, and
-the generated diff before merging.
+`.github/workflows/update-logchef.yml` checks the latest stable Logchef server
+release once a day and can also be started with **Run workflow**. Because the
+upstream repository also publishes CLI releases, the workflow lists releases
+and selects an exact `vX.Y.Z` server tag instead of using GitHub's generic
+`releases/latest` endpoint. When the upstream tag is newer, it runs `update.sh`,
+executes `nix flake check -L`, and opens a branch and pull request with the
+refreshed source and dependency hashes. It does not merge or deploy
+automatically; review upstream release notes, migrations, and the generated
+diff before merging.
 
 ## Licensing
 
