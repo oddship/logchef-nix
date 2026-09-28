@@ -1,3 +1,8 @@
+---
+title: Runtime secrets
+description: Keep Logchef API, OIDC, datasource, and local-auth credentials out of the Nix store.
+---
+
 # Runtime secrets
 
 Nix evaluates module settings into the store. Treat every value placed in `services.logchef.settings` as public. Do not use `builtins.toFile`, `pkgs.writeText`, or a quoted Nix string for a password, token, DSN, or OIDC client secret.

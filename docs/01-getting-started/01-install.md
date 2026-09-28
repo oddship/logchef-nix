@@ -1,3 +1,8 @@
+---
+title: Install
+description: Build Logchef or deploy a working local-auth instance with the logchef-nix NixOS module.
+---
+
 # Install
 
 ## Build the package
@@ -13,9 +18,21 @@ The package is built from Logchef v2.1.0. The Vite frontend is compiled from the
 
 The flake publishes `packages.default` and `packages.logchef` for `x86_64-linux` and `aarch64-linux`.
 
-## Add the flake to NixOS
+## Deploy a first instance
 
-Import `nixosModules.default` and configure the service:
+Create two runtime secrets on the target host. The API-token secret protects
+stored API tokens and the local password must be at least 10 characters:
+
+```console
+sudo install -d -m 0700 /var/lib/logchef-secrets
+sudo install -m 0600 /dev/null /var/lib/logchef-secrets/api-token-secret
+sudo install -m 0600 /dev/null /var/lib/logchef-secrets/admin-password
+openssl rand -hex 32 | sudo tee /var/lib/logchef-secrets/api-token-secret >/dev/null
+openssl rand -base64 24 | sudo tee /var/lib/logchef-secrets/admin-password >/dev/null
+```
+
+Import `nixosModules.default` and enable local authentication for the first
+login:
 
 ```nix
 {
@@ -30,8 +47,17 @@ Import `nixosModules.default` and configure the service:
           services.logchef = {
             enable = true;
             adminEmails = [ "admin@example.com" ];
-            credentialFiles.LOGCHEF_AUTH__API_TOKEN_SECRET =
-              "/run/secrets/logchef-api-token-secret";
+            localAuth = {
+              enable = true;
+              adminEmail = "admin@example.com";
+            };
+            settings.server.secure_cookie = false;
+            credentialFiles = {
+              LOGCHEF_AUTH__API_TOKEN_SECRET =
+                "/var/lib/logchef-secrets/api-token-secret";
+              LOGCHEF_AUTH__LOCAL__ADMIN_PASSWORD =
+                "/var/lib/logchef-secrets/admin-password";
+            };
           };
           system.stateVersion = "26.05";
         }
@@ -41,7 +67,29 @@ Import `nixosModules.default` and configure the service:
 }
 ```
 
-The service listens on `127.0.0.1:8125` by default. Keep that boundary when a reverse proxy is in front, or set `openFirewall = true` only when the host should accept direct connections.
+Apply the configuration and verify the service before adding an external
+datasource:
+
+```console
+sudo nixos-rebuild switch --flake .#logs
+systemctl status logchef --no-pager
+journalctl -u logchef -b --no-pager -n 50
+curl --fail http://127.0.0.1:8125/
+```
+
+Open `http://127.0.0.1:8125` through a local tunnel and sign in as
+`admin@example.com` with the password stored in
+`/var/lib/logchef-secrets/admin-password`. Replace the plain files with
+sops-nix, agenix, or encrypted systemd credentials for a maintained host.
+
+The service listens on `127.0.0.1:8125` by default. `secure_cookie = false` is
+required only for this local HTTP bootstrap. Before publishing the service,
+follow [[Reverse proxy and TLS]], use HTTPS, and set it back to `true`.
+
+If you prefer SSO, configure the complete OIDC block in [[External integrations]]
+instead of enabling local authentication. Logchef refuses to start unless local
+authentication is enabled or the required OIDC endpoints and client ID are
+present.
 
 ## Local development
 

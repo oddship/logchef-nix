@@ -19,10 +19,10 @@ go install github.com/oddship/moat@v0.6.2
 moat build docs/ _site/
 ```
 
-The [Documentation workflow](./.github/workflows/docs.yml) invokes Moat's
-reusable GitHub Pages workflow whenever `docs/` changes. It pins Moat v0.6.2,
-publishes the generated site from `master`, and can be started with **Run
-workflow** when a manual rebuild is needed.
+The [Documentation workflow](./.github/workflows/docs.yml) builds with Moat
+v0.6.2 whenever the site changes, validates rendered links and metadata, adds
+canonical URLs and a sitemap, and publishes from `master`. It can also be
+started with **Run workflow** for a manual rebuild.
 
 The published project site is [oddship.github.io/logchef-nix](https://oddship.github.io/logchef-nix/).
 
@@ -56,10 +56,18 @@ Add this flake and import its module:
           services.logchef = {
             enable = true;
             adminEmails = [ "admin@example.com" ];
+            localAuth = {
+              enable = true;
+              adminEmail = "admin@example.com";
+            };
 
             # Keep secrets outside the Nix store.
-            credentialFiles.LOGCHEF_AUTH__API_TOKEN_SECRET =
-              "/run/secrets/logchef-api-token-secret";
+            credentialFiles = {
+              LOGCHEF_AUTH__API_TOKEN_SECRET =
+                "/run/secrets/logchef-api-token-secret";
+              LOGCHEF_AUTH__LOCAL__ADMIN_PASSWORD =
+                "/run/secrets/logchef-local-admin-password";
+            };
 
             # Bind publicly only when a reverse proxy or firewall policy is ready.
             listenAddress = "127.0.0.1";
@@ -84,10 +92,12 @@ Add this flake and import its module:
 }
 ```
 
-Generate the required API-token hashing secret with, for example,
-`openssl rand -hex 32`. Because `services.logchef.settings` becomes a
-world-readable Nix store file, the module rejects known secret-bearing keys in
-that attrset.
+Generate the required API-token hashing secret with `openssl rand -hex 32` and
+use a local administrator password of at least 10 characters. Because
+`services.logchef.settings` becomes a world-readable Nix store file, the
+module rejects known secret-bearing keys in that attrset. The website's
+[installation guide](https://oddship.github.io/logchef-nix/getting-started/install/)
+includes a complete first-deployment walkthrough.
 
 SQLite metadata is persisted at `/var/lib/logchef/logchef.db`. systemd owns the
 directory through `StateDirectory=logchef` with mode `0700`; the service uses a
@@ -269,11 +279,12 @@ upstream repository also publishes CLI releases, the workflow lists releases
 and selects an exact `vX.Y.Z` server tag instead of using GitHub's generic
 `releases/latest` endpoint. When the upstream tag is newer, it runs `update.sh`,
 refreshes the source and dependency hashes plus the documented Logchef version,
-and checks formatting, every supported-system evaluation, package and module
-builds, the NixOS VM, and GitHub Actions syntax. It then opens a branch and pull
-request and publishes the successful release-check status on that commit. It
-does not merge or deploy automatically; review upstream release notes,
-migrations, and the generated diff before merging.
+and checks the rendered documentation, formatting, every supported-system
+evaluation, package and module builds, the NixOS VM, and GitHub Actions syntax.
+It then opens a branch and pull request and publishes the successful
+release-check status on that commit. It does not merge or deploy automatically;
+review upstream release notes, migrations, and the generated diff before
+merging.
 
 ## Licensing
 
