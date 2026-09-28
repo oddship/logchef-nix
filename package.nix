@@ -9,13 +9,13 @@
 }:
 
 let
-  version = "2.0.2";
+  version = "2.1.0";
 
   src = fetchFromGitHub {
     owner = "mr-karan";
     repo = "logchef";
     tag = "v${version}";
-    hash = "sha256-drN0zD2QqQwBeX3WyBCQF1oDU+higtcAlkrMSeSjQBo=";
+    hash = "sha256-3KE3S0jrjweonEHtTSk/xfMmbKHG0b8+GsDKZbBk6KM=";
   };
 
   nodeModules = stdenvNoCC.mkDerivation {
@@ -60,7 +60,7 @@ let
       runHook postInstall
     '';
 
-    outputHash = "sha256-LWjIjs35Vrc6LoN6SGsW9/DiZ8W+YnOictYGCDr/Jk8=";
+    outputHash = "sha256-NVIen3WD9ml2RxzgXnCcyyZSoLqqj5XIHW6aGsEJhss=";
     outputHashMode = "recursive";
   };
 in
@@ -68,7 +68,7 @@ buildGo126Module (finalAttrs: {
   pname = "logchef";
   inherit src version;
 
-  vendorHash = "sha256-zc5Ldm/zhXT4KyMhb/JF8nk1BNgfoz4Op/10AgWcvwU=";
+  vendorHash = "sha256-HZq+Yp+WqthWR89L9+bgKbIIbQ7yppwpc53jbGDr0K0=";
 
   env.CGO_ENABLED = 0;
 
