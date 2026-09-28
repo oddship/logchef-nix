@@ -4,7 +4,7 @@ A native Nix package and hardened NixOS service for
 [Logchef](https://github.com/mr-karan/logchef). It runs the upstream server
 directly; Docker, Podman, OCI images, and container runtimes are not involved.
 
-The flake pins Logchef **v2.0.2** and a NixOS 26.05 Nixpkgs revision. The build
+The flake pins Logchef **v2.1.0** and a NixOS 26.05 Nixpkgs revision. The build
 uses the upstream `bun.lock` to compile the Vite UI, embeds that UI in the Go
 server, and uses the upstream `go.sum` for Go dependencies. The source and both
 dependency trees have fixed hashes, so a build does not depend on a mutable
@@ -268,10 +268,12 @@ release once a day and can also be started with **Run workflow**. Because the
 upstream repository also publishes CLI releases, the workflow lists releases
 and selects an exact `vX.Y.Z` server tag instead of using GitHub's generic
 `releases/latest` endpoint. When the upstream tag is newer, it runs `update.sh`,
-executes `nix flake check -L`, and opens a branch and pull request with the
-refreshed source and dependency hashes. It does not merge or deploy
-automatically; review upstream release notes, migrations, and the generated
-diff before merging.
+refreshes the source and dependency hashes plus the documented Logchef version,
+and checks formatting, every supported-system evaluation, package and module
+builds, the NixOS VM, and GitHub Actions syntax. It then opens a branch and pull
+request and publishes the successful release-check status on that commit. It
+does not merge or deploy automatically; review upstream release notes,
+migrations, and the generated diff before merging.
 
 ## Licensing
 

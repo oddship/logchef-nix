@@ -20,3 +20,19 @@ nix-update --flake "${version_args[@]}" logchef
 
 # Refresh the fixed-output Bun dependency tree separately.
 nix-update --flake "${version_args[@]}" logchef --subpackage nodeModules
+
+version="$(sed -nE 's/^[[:space:]]*version = "([^"]+)";/\1/p' package.nix | head -n1)"
+if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "could not read a stable Logchef version from package.nix" >&2
+  exit 1
+fi
+
+# Keep user-facing version references synchronized with the package pin.
+sed -i -E \
+  "s/(The flake pins Logchef \*\*v)[0-9]+\.[0-9]+\.[0-9]+(\*\*)/\1${version}\2/" \
+  README.md
+sed -i -E \
+  "s/(The package is built from Logchef v)[0-9]+\.[0-9]+\.[0-9]+/\1${version}/" \
+  docs/01-getting-started/01-install.md
+
+bash tests/check-version-docs.sh

@@ -9,7 +9,7 @@ nix build .#logchef
 ./result/bin/logchef --help
 ```
 
-The package is built from Logchef v2.0.2. The Vite frontend is compiled from the upstream lockfile and embedded in a statically linked Go server. There is no OCI image or runtime container dependency.
+The package is built from Logchef v2.1.0. The Vite frontend is compiled from the upstream lockfile and embedded in a statically linked Go server. There is no OCI image or runtime container dependency.
 
 The flake publishes `packages.default` and `packages.logchef` for `x86_64-linux` and `aarch64-linux`.
 

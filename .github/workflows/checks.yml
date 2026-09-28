@@ -30,6 +30,9 @@ jobs:
         with:
           enable_kvm: true
 
+      - name: Check generated version references
+        run: bash tests/check-version-docs.sh
+
       - name: Check formatting
         run: |
           nix fmt
