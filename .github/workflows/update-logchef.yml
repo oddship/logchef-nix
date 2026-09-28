@@ -22,12 +22,12 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Check out the default branch
+      - name: Check out the triggering revision
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ github.event.repository.default_branch }}
+          ref: ${{ github.sha }}
 
       - name: Install Nix
         uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
