@@ -121,8 +121,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(logchef): update to v${VERSION}"
-          git -c "http.extraheader=AUTHORIZATION: bearer ${GH_TOKEN}" \
-            push --force-with-lease origin "$branch"
+          gh auth setup-git
+          git push --force-with-lease origin "$branch"
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
