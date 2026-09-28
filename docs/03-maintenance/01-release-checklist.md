@@ -5,7 +5,7 @@ This repository tracks a released Logchef source version rather than a moving br
 ## Update
 
 1. Read the upstream release notes and inspect changes to configuration, migrations, provisioning, and the build workflow.
-2. Run `./update.sh` to refresh the source, Go vendor, and fixed-output Bun dependency tree.
+2. Run `./update.sh` to refresh the source, Go vendor, fixed-output Bun dependency tree, and user-facing Logchef version references.
 3. Confirm the Go toolchain in `package.nix` still matches upstream.
 4. Review the generated diff. Do not accept a hash-only change without checking the downloaded source and lockfiles.
 
