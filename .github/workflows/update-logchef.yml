@@ -92,7 +92,7 @@ jobs:
 
       - name: Refresh source and dependency hashes
         if: steps.upstream.outputs.needs_update == 'true'
-        run: ./update.sh
+        run: nix develop --command bash ./update.sh
 
       - name: Run the release checks
         if: steps.upstream.outputs.needs_update == 'true'
