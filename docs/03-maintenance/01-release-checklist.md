@@ -1,3 +1,8 @@
+---
+title: Release checklist
+description: Review, verify, and safely publish automated Logchef release updates.
+---
+
 # Release checklist
 
 This repository tracks a released Logchef source version rather than a moving branch. A release update should leave a reviewer with a source URL, fixed hashes, and a passing test result.

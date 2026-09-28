@@ -101,6 +101,7 @@ jobs:
         if: steps.upstream.outputs.needs_update == 'true'
         run: |
           bash tests/check-version-docs.sh
+          nix develop --command bash tests/check-docs.sh
           nix fmt -- --ci
           nix flake check --all-systems --no-build
           nix build \
@@ -154,7 +155,7 @@ jobs:
             "repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
             -f state=success \
             -f context='Update Logchef / release checks' \
-            -f description='Pinned update passed formatting, evaluation, build, and VM checks.' \
+            -f description='Pinned update passed docs, formatting, evaluation, build, and VM checks.' \
             -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
       - name: Open or reuse the update pull request
@@ -180,7 +181,7 @@ jobs:
 
               ## Verification
 
-              - Formatting, all-system evaluation, package builds, VM tests, and actionlint passed in the updater workflow.
+              - Rendered documentation, formatting, all-system evaluation, package builds, VM tests, and actionlint passed in the updater workflow.
               - The source, Go vendor tree, and Bun dependency tree remain hash-pinned.
               - Review upstream release notes and migrations before merging."
           else

@@ -26,7 +26,7 @@ url = "/getting-started/install/"
 
 [[topnav]]
 title = "Operations"
-url = "/operations/secrets/"
+url = "/operations/runtime-secrets/"
 
 [[topnav_more]]
 title = "Upstream Logchef"

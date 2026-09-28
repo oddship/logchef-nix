@@ -1,6 +1,14 @@
+---
+title: External integrations
+description: Connect Logchef to ClickHouse, VictoriaLogs, and an OIDC identity provider without storing secrets in Nix.
+---
+
 # External integrations
 
-Logchef is the application layer. ClickHouse stores log data, and ZITADEL can provide OIDC identity. Keep both services on their own lifecycle and make their network endpoints explicit in Logchef configuration.
+Logchef is the application layer. ClickHouse or VictoriaLogs stores log data,
+and an identity provider such as ZITADEL can provide OIDC identity. Keep these
+services on their own lifecycle and make their network endpoints explicit in
+Logchef configuration.
 
 ## ClickHouse
 
@@ -32,7 +40,50 @@ services.logchef = {
 };
 ```
 
-Begin with `dry_run = true`. When the proposed changes are understood, move the document to `provisioningCredentialFile` and choose whether reconciliation and pruning belong in production.
+Begin with `dry_run = true`. Once the proposed changes are understood, switch
+it to `false` and choose whether pruning belongs in production. This inline
+document is safe to keep in `settings` because the password comes from
+`secret_ref`; use `provisioningCredentialFile` only when the document itself
+contains a secret.
+
+## VictoriaLogs
+
+VictoriaLogs uses its HTTP API and `_time` timestamp field. A bearer token can
+be supplied with the same `secret_ref` pattern:
+
+```nix
+services.logchef = {
+  settings.provisioning = {
+    manage_sources = true;
+    dry_run = true;
+    sources = [
+      {
+        name = "Production VictoriaLogs";
+        source_type = "victorialogs";
+        meta_ts_field = "_time";
+        meta_severity_field = "level";
+        secret_ref = "LOGCHEF_VL_PROD_TOKEN";
+        connection = {
+          base_url = "https://victorialogs.example.com";
+          auth.mode = "bearer";
+          tenant = {
+            account_id = "12";
+            project_id = "34";
+          };
+          scope.query = ''{app="payments"} kubernetes.namespace:="prod"'';
+        };
+      }
+    ];
+  };
+  credentialFiles.LOGCHEF_VL_PROD_TOKEN =
+    "/run/secrets/logchef-victorialogs-token";
+};
+```
+
+Omit `auth`, `tenant`, and `scope` when the endpoint does not use them. Account
+and project IDs must be configured together for a multi-tenant VictoriaLogs
+endpoint. The immutable scope is applied server-side to queries, histograms,
+field discovery, live tail, and alerts.
 
 ## ZITADEL / OIDC
 

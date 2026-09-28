@@ -34,5 +34,8 @@ sed -i -E \
 sed -i -E \
   "s/(The package is built from Logchef v)[0-9]+\.[0-9]+\.[0-9]+/\1${version}/" \
   docs/01-getting-started/01-install.md
+sed -i -E \
+  "s|(mr-karan/logchef/blob/v)[0-9]+\.[0-9]+\.[0-9]+/|\1${version}/|g" \
+  README.md docs/*.md docs/*/*.md
 
 bash tests/check-version-docs.sh

@@ -17,3 +17,13 @@ if ! grep -Fq "The package is built from Logchef v${version}." docs/01-getting-s
   echo "installation docs do not identify Logchef v${version} as the packaged release" >&2
   exit 1
 fi
+
+stale_release_links="$({
+  grep -RhoE 'mr-karan/logchef/blob/v[0-9]+\.[0-9]+\.[0-9]+/' README.md docs \
+    || true
+} | grep -Fv "mr-karan/logchef/blob/v${version}/" || true)"
+if [[ -n "$stale_release_links" ]]; then
+  echo "documentation links to a Logchef release other than v${version}:" >&2
+  echo "$stale_release_links" >&2
+  exit 1
+fi
