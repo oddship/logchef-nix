@@ -45,7 +45,13 @@ Add this flake and import its module:
 
 ```nix
 {
-  inputs.logchef.url = "github:oddship/logchef-nix";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    logchef = {
+      url = "github:oddship/logchef-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs = { nixpkgs, logchef, ... }: {
     nixosConfigurations.logs = nixpkgs.lib.nixosSystem {
