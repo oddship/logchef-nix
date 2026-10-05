@@ -265,7 +265,7 @@ to boot.
 1. Review the newest non-prerelease server release and its changelog.
 2. Run `./update.sh`. It refreshes the release source, Go vendor hash, and the
    fixed-output Bun dependency tree.
-3. Check that `package.nix` still follows upstream's Go toolchain and review
+3. Review the automatically selected compiler in `go-toolchain.nix`, any nixpkgs lock update, and
    changes to configuration, provisioning, migrations, and the release build.
 4. Run `nix flake check -L` on x86_64 Linux. Build
    `.#packages.aarch64-linux.logchef` on native aarch64 Linux or with a remote

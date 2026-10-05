@@ -33,6 +33,9 @@ jobs:
       - name: Check generated version references
         run: bash tests/check-version-docs.sh
 
+      - name: Test release updater
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+
       - name: Build and validate documentation
         run: nix develop --command bash tests/check-docs.sh
 

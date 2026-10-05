@@ -11,7 +11,7 @@ This repository tracks a released Logchef source version rather than a moving br
 
 1. Read the upstream release notes and inspect changes to configuration, migrations, provisioning, and the build workflow.
 2. Run `./update.sh` to refresh the source, Go vendor, fixed-output Bun dependency tree, and user-facing Logchef version references.
-3. Confirm the Go toolchain in `package.nix` still matches upstream.
+3. Review `go-toolchain.nix` and any nixpkgs lock update. The updater reads upstream's `go.mod` and selects a compatible stable Go compiler for both supported systems before refreshing dependency hashes. It refreshes nixpkgs when the current pin cannot meet the requirement, and stops before changing release pins if no compatible compiler is available.
 4. Review the generated diff. Do not accept a hash-only change without checking the downloaded source and lockfiles.
 
 The scheduled GitHub Actions workflow performs the same update automatically.

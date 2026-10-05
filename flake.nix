@@ -11,12 +11,21 @@
         "aarch64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      goToolchain = import ./go-toolchain.nix;
     in
     {
-      packages = forAllSystems (system: {
-        default = self.packages.${system}.logchef;
-        logchef = nixpkgs.legacyPackages.${system}.callPackage ./package.nix { };
-      });
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = self.packages.${system}.logchef;
+          logchef = pkgs.callPackage ./package.nix {
+            buildGoModule = pkgs.buildGoModule.override { go = pkgs.${goToolchain}; };
+          };
+        }
+      );
 
       nixosModules.default = import ./module.nix;
 
@@ -53,7 +62,8 @@
           default = pkgs.mkShellNoCC {
             packages = with pkgs; [
               bun
-              go_1_27
+              pkgs.${goToolchain}
+              python3
               just
               nix-update
               nixfmt-tree

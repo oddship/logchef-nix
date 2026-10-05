@@ -2,7 +2,7 @@
   lib,
   stdenv,
   stdenvNoCC,
-  buildGo127Module,
+  buildGoModule,
   bun,
   nodejs,
   fetchFromGitHub,
@@ -65,7 +65,7 @@ let
     outputHashMode = "recursive";
   };
 in
-buildGo127Module (finalAttrs: {
+buildGoModule (finalAttrs: {
   pname = "logchef";
   inherit src version;
 

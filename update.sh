@@ -1,9 +1,8 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p nix-update
+#!nix-shell -i bash -p nix-update python3
 
 set -euo pipefail
 
-version_args=()
 if (( $# > 1 )); then
   echo "usage: $0 [VERSION]" >&2
   exit 2
@@ -12,8 +11,12 @@ elif (( $# == 1 )); then
     echo "invalid stable release version: $1" >&2
     exit 2
   fi
-  version_args=("--version=$1")
 fi
+
+# Resolve the server release and prepare a compatible Go compiler before any
+# dependency hash builds. Use the same explicit version for both nix-update calls.
+version="$(python3 scripts/prepare-update.py "${1:-}")"
+version_args=("--version=$version")
 
 # Refresh the release version, source hash, and Go dependency hash.
 nix-update --flake "${version_args[@]}" logchef

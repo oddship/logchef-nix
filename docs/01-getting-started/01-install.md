@@ -99,7 +99,7 @@ present.
 
 ## Local development
 
-The dev shell includes Bun, Go 1.27, `nix-update`, `nixfmt-tree`, and `just`:
+The dev shell includes Bun, the package's selected Go compiler, Python, `nix-update`, `nixfmt-tree`, and `just`:
 
 ```console
 nix develop
