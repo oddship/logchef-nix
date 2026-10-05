@@ -35,6 +35,9 @@ jobs:
         with:
           enable_kvm: true
 
+      - name: Test release updater
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+
       - name: Check the latest stable upstream release
         id: upstream
         shell: bash
@@ -100,7 +103,6 @@ jobs:
       - name: Run the release checks
         if: steps.upstream.outputs.needs_update == 'true'
         run: |
-          python3 -m unittest discover -s tests -p 'test_*.py'
           bash tests/check-version-docs.sh
           nix develop --command bash tests/check-docs.sh
           nix fmt -- --ci
