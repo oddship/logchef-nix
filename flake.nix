@@ -53,7 +53,7 @@
           default = pkgs.mkShellNoCC {
             packages = with pkgs; [
               bun
-              go_1_26
+              go_1_27
               just
               nix-update
               nixfmt-tree
