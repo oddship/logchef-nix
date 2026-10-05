@@ -4,6 +4,7 @@
   stdenvNoCC,
   buildGo127Module,
   bun,
+  nodejs,
   fetchFromGitHub,
   writableTmpDirAsHomeHook,
 }:
@@ -74,6 +75,7 @@ buildGo127Module (finalAttrs: {
 
   nativeBuildInputs = [
     bun
+    nodejs
     writableTmpDirAsHomeHook
   ];
 
@@ -102,7 +104,8 @@ buildGo127Module (finalAttrs: {
   checkPhase = ''
     runHook preCheck
 
-    (cd frontend && bun ./node_modules/vitest/vitest.mjs run)
+    # Vitest's jsdom workers require Node's EventTarget implementation.
+    (cd frontend && node ./node_modules/vitest/vitest.mjs run)
     go test ./...
 
     runHook postCheck
