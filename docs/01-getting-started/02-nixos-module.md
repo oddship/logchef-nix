@@ -32,7 +32,7 @@ The module asserts that an administrator email and `LOGCHEF_AUTH__API_TOKEN_SECR
 The module owns `server.host`, `server.port`, `sqlite.path`, administrator emails, and local-auth enablement. Those values cannot be changed accidentally through the free-form settings attrset.
 
 `settings` accepts the remaining non-secret keys from the upstream
-[`config.toml`](https://github.com/mr-karan/logchef/blob/v2.2.0/config.toml).
+[`config.toml`](https://github.com/mr-karan/logchef/blob/v2.3.2/config.toml).
 Use nested Nix attributes for TOML sections and underscores for upstream key
 names. Secrets are rejected recursively, so supply them through one of the
 runtime mechanisms instead.

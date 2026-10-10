@@ -4,7 +4,7 @@ A native Nix package and hardened NixOS service for
 [Logchef](https://github.com/mr-karan/logchef). It runs the upstream server
 directly; Docker, Podman, OCI images, and container runtimes are not involved.
 
-The flake pins Logchef **v2.2.0** and a NixOS 26.05 Nixpkgs revision. The build
+The flake pins Logchef **v2.3.2** and a NixOS 26.05 Nixpkgs revision. The build
 uses the upstream `bun.lock` to compile the Vite UI, embeds that UI in the Go
 server, and uses the upstream `go.sum` for Go dependencies. The source and both
 dependency trees have fixed hashes, so a build does not depend on a mutable
