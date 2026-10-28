@@ -10,13 +10,13 @@
 }:
 
 let
-  version = "2.5.0";
+  version = "2.6.0";
 
   src = fetchFromGitHub {
     owner = "mr-karan";
     repo = "logchef";
     tag = "v${version}";
-    hash = "sha256-lNBEUTWKQg+qTjvddr/O91hZDNjc8uU/+J5Kfbou/eE=";
+    hash = "sha256-9x8VeeaUdOovqZxM8MbAPoeeOiVQUGPFpu0JshjukCc=";
   };
 
   nodeModules = stdenvNoCC.mkDerivation {
