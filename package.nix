@@ -106,7 +106,10 @@ buildGoModule (finalAttrs: {
 
     # Vitest's jsdom workers require Node's EventTarget implementation.
     (cd frontend && node ./node_modules/vitest/vitest.mjs run)
-    go test ./...
+    # The shutdown leak test counts process-wide goroutines. Run it in a fresh
+    # process so asynchronous work from earlier server tests cannot affect it.
+    go test ./... -skip '^TestServerShutdownLeavesNoMaintenanceGoroutines$'
+    go test ./internal/server -run '^TestServerShutdownLeavesNoMaintenanceGoroutines$' -count=1
 
     runHook postCheck
   '';
