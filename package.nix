@@ -10,13 +10,13 @@
 }:
 
 let
-  version = "2.5.0";
+  version = "2.6.1";
 
   src = fetchFromGitHub {
     owner = "mr-karan";
     repo = "logchef";
     tag = "v${version}";
-    hash = "sha256-lNBEUTWKQg+qTjvddr/O91hZDNjc8uU/+J5Kfbou/eE=";
+    hash = "sha256-kRwFpmbdUsl68uX8GOyy+GxT4nhXxey9ZhqOPeyRafo=";
   };
 
   nodeModules = stdenvNoCC.mkDerivation {
@@ -106,7 +106,10 @@ buildGoModule (finalAttrs: {
 
     # Vitest's jsdom workers require Node's EventTarget implementation.
     (cd frontend && node ./node_modules/vitest/vitest.mjs run)
-    go test ./...
+    # The shutdown leak test counts process-wide goroutines. Run it in a fresh
+    # process so asynchronous work from earlier server tests cannot affect it.
+    go test ./... -skip '^TestServerShutdownLeavesNoMaintenanceGoroutines$'
+    go test ./internal/server -run '^TestServerShutdownLeavesNoMaintenanceGoroutines$' -count=1
 
     runHook postCheck
   '';
