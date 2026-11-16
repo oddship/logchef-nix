@@ -10,6 +10,23 @@ server, and uses the upstream `go.sum` for Go dependencies. The source and both
 dependency trees have fixed hashes, so a build does not depend on a mutable
 package registry.
 
+## Upgrades and compatibility
+
+Your `flake.lock` pins this flake to an exact revision. Merging an update here
+does not change an existing deployment. Updating the input and rebuilding can
+upgrade Logchef, including its database schema and API behavior. `master`
+tracks reviewed upstream releases; it is not a compatibility branch.
+
+Before updating, read the [backup and upgrade guide](./docs/02-operations/04-backup-and-upgrade.md)
+and the upstream release notes. NixOS `system.stateVersion` does not pin
+Logchef or prevent its startup migrations. A NixOS generation rollback does
+not undo database migrations.
+
+**Upgrading to v2.7.0:** back up metadata first and review the
+[v2.7.0 upgrade notes](./docs/02-operations/04-backup-and-upgrade.md#upgrading-from-v261-to-v270).
+This release changes collection permissions, dashboard APIs, CLI variables,
+and some ClickHouse alert behavior.
+
 The longer-form documentation lives in [`docs/`](./docs/). It is written for
 [Moat](https://github.com/oddship/moat), a lightweight Markdown-to-static-site
 generator with a built-in layout and search. Build it locally with:
