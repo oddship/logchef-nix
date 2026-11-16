@@ -309,6 +309,13 @@ release-check status on that commit. It does not merge or deploy automatically;
 review upstream release notes, migrations, and the generated diff before
 merging.
 
+The repository's [maintenance agent skill](./.agents/skills/maintain-logchef-nix/SKILL.md)
+defines release review, CI repair, validation, PR handling, and publication
+steps. Invoke it as `$maintain-logchef-nix` in an agent that discovers repository
+skills, or ask an agent to read and follow that file. An external scheduler
+can invoke the same skill for recurring maintenance; the schedule is not part
+of the skill.
+
 ## Licensing
 
 Logchef itself is licensed AGPL-3.0-only, reflected in the package metadata.
