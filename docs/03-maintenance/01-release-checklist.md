@@ -33,6 +33,24 @@ The VM test starts the service with a secret generated at runtime, fetches the e
 
 ## Publish safely
 
+Before merging an update with breaking changes, add version-specific upgrade
+notes to the backup and upgrade guide and link them prominently from the
+README. Include database migrations, permission changes, configuration and
+API changes, and rollback requirements. Keep the update PR as a draft while
+the upgrade decision is pending.
+
+Prepare a draft GitHub Release for the reviewed flake revision. Use a version
+tag matching the packaged Logchef release when publishing its first flake
+release. Release notes must summarize the upgrade impact and link to both
+this repository's upgrade guide and the upstream changelog. Do not publish a
+tag or mark the release latest before the intended commit is merged and its
+checks pass. When publishing, target the reviewed merged commit, not a
+moving branch. Retain published tags so consumers can keep using them.
+
+Package and VM checks validate the build and a fresh deployment. They do not
+prove that an existing metadata database, custom scripts, or alerts are
+compatible with an upstream upgrade. Record that distinction in release notes.
+
 Back up `/var/lib/logchef/logchef.db` before deploying a release that may contain migrations. Keep secrets in a runtime secret manager, and verify that no generated TOML, environment file, or command line contains them.
 
 The package is source-built and statically linked. A pinned upstream release binary would be an acceptable fallback if source builds stop being feasible, but it should carry an explicit platform-specific hash and a documented provenance decision.
