@@ -101,7 +101,7 @@ Review these compatibility changes before updating the input:
   evaluation. Review those queries and apply the safe settings described by
   upstream before relying on alert delivery after the upgrade.
 
-Read the [complete upstream v2.7.0 upgrade notes](https://github.com/mr-karan/logchef/blob/v2.7.0/CHANGELOG.md#270---2026-11-15)
+Read the [complete upstream v2.7.0 upgrade notes](https://github.com/mr-karan/logchef/blob/v2.8.0/CHANGELOG.md#270---2026-11-15)
 for the audit SQL, API changes, alert settings, and multi-replica rollout
 behavior. After deployment, check login, queries, dashboard saves, collection
 permissions, and affected alerts. A package build and a fresh-database VM
