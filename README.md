@@ -22,10 +22,13 @@ and the upstream release notes. NixOS `system.stateVersion` does not pin
 Logchef or prevent its startup migrations. A NixOS generation rollback does
 not undo database migrations.
 
-**Upgrading to v2.7.0:** back up metadata first and review the
+Before moving from v2.6.1 to v2.7.0, review the
 [v2.7.0 upgrade notes](./docs/02-operations/04-backup-and-upgrade.md#upgrading-from-v261-to-v270).
-This release changes collection permissions, dashboard APIs, CLI variables,
-and some ClickHouse alert behavior.
+Before moving from v2.7.0 to v2.8.x, review the
+[v2.8 upgrade notes](./docs/02-operations/04-backup-and-upgrade.md#upgrading-from-v270-to-v28x).
+The v2.8 upgrade requires downtime and a metadata backup; a rolling upgrade
+is not supported. These notes describe upgrade requirements, not whether an
+update has been merged or a flake release has been published.
 
 The longer-form documentation lives in [`docs/`](./docs/). It is written for
 [Moat](https://github.com/oddship/moat), a lightweight Markdown-to-static-site

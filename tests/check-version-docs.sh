@@ -18,8 +18,10 @@ if ! grep -Fq "The package is built from Logchef v${version}." docs/01-getting-s
   exit 1
 fi
 
+# Configuration references describe the packaged version. Historical changelog
+# links intentionally describe earlier releases and must not be rewritten.
 stale_release_links="$({
-  grep -RhoE 'mr-karan/logchef/blob/v[0-9]+\.[0-9]+\.[0-9]+/' README.md docs \
+  grep -RhoE 'mr-karan/logchef/blob/v[0-9]+\.[0-9]+\.[0-9]+/config\.toml' README.md docs \
     || true
 } | grep -Fv "mr-karan/logchef/blob/v${version}/" || true)"
 if [[ -n "$stale_release_links" ]]; then

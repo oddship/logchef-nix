@@ -141,6 +141,21 @@ class UpdateScriptTests(unittest.TestCase):
             f"--flake --version={version} logchef --subpackage nodeModules",
         ])
 
+    def test_update_refreshes_config_links_but_preserves_upgrade_history(self):
+        package = self.repo / "package.nix"
+        current = next(line.split('"')[1] for line in package.read_text().splitlines()
+                       if line.strip().startswith("version ="))
+        package.write_text(package.read_text().replace(
+            f'version = "{current}";', 'version = "99.0.0";'))
+        self.stub("python3", "echo 99.0.0\n")
+        guide = self.repo / "docs/02-operations/04-backup-and-upgrade.md"
+        before = guide.read_bytes()
+        result = self.run_update("99.0.0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(guide.read_bytes(), before)
+        module_docs = self.repo / "docs/01-getting-started/02-nixos-module.md"
+        self.assertIn("mr-karan/logchef/blob/v99.0.0/config.toml", module_docs.read_text())
+
     def test_invalid_release_never_runs_preflight_or_hash_updates(self):
         self.stub("python3", "touch unexpected-preflight\n")
         result = self.run_update("cli-v0.2.2")
