@@ -107,6 +107,54 @@ behavior. After deployment, check login, queries, dashboard saves, collection
 permissions, and affected alerts. A package build and a fresh-database VM
 smoke test do not validate an existing deployment's migration or scripts.
 
+## Upgrading from v2.7.0 to v2.8.x
+
+Plan downtime and take a consistent metadata backup. Stop every old replica
+before starting the first new one: Alerting v2 does not support a rolling
+upgrade. Startup applies 18 migrations per metadata store, SQLite 000042
+through 000059 or Postgres 000016 through 000033. Treat them as forward-only.
+The alert migrations move rule targets into destinations, and down migrations
+do not restore the old targets. Rollback requires the old binary, matching
+configuration lock, and the pre-upgrade database backup.
+
+The v2.8.1 and v2.8.2 patch releases add no further migrations over v2.8.0;
+upgrading directly from v2.7.0 still runs the v2.8.0 migrations.
+
+Before deploying, review these changes:
+
+- Alert API clients must replace `recipient_user_ids` and `webhook_urls`
+  with `destination_ids`, and use notification-destination routes for webhook
+  tests. Pending delivery retries are dropped during migration. Existing
+  webhooks keep payload version 1, but receivers should deduplicate the new
+  `Logchef-Delivery-Id` because delivery is at least once.
+- Remove `alerts.evaluation_interval` and
+  `LOGCHEF_ALERTS__EVALUATION_INTERVAL`. At least one replica needs
+  `jobs.enabled = true` and `alerts.enabled = true` for evaluations and
+  notifications. A stored `alerts.enabled` setting overrides the file and
+  environment at startup. Verify SMTP in the admin settings if sending email.
+- Every query is recorded with its full text in the audit log and, by
+  default, a JSON server log line. Review query privacy and log shipping.
+  Audit retention defaults to 30 days and 1,000,000 rows; configure bounds
+  for your query volume. `audit.log_events = false` disables the JSON log
+  line, not storage of the event in the metadata database.
+- Reissue scoped tokens as needed for saved views, destinations, and reports;
+  OAuth clients may need to authenticate again. Reading audit events requires
+  a global admin with the appropriate access. Query Activity API scripts
+  must handle the new payload; the old `/admin/query-activity` route is removed.
+- Exported custom source headers now refer to environment variables through
+  `header_secret_refs`. Supply every referenced secret at runtime. Missing
+  values prevent provisioning startup. Keep provisioning and credentials out
+  of the Nix store using the module's runtime secret options.
+- A Loki source grants linked teams access to the whole tenant; its default
+  selector is not an access restriction. Review source access and shared
+  dashboard edit permissions, and reload browser tabs after deployment.
+
+Read the [complete upstream v2.8 upgrade notes](https://github.com/mr-karan/logchef/blob/v2.8.2/CHANGELOG.md#upgrade-notes)
+and the v2.8.1/v2.8.2 fixes before deploying. Verify login, queries, alerts,
+notification delivery, reports, provisioning, and token access after startup.
+Package and fresh-database VM checks do not establish that a production
+database upgrade or existing integrations will succeed.
+
 ## Restore
 
 First roll the NixOS configuration and its flake lock back to the version that

@@ -30,7 +30,8 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
-# Keep user-facing version references synchronized with the package pin.
+# Keep current package references synchronized; historical upgrade notes retain
+# their release-specific source links.
 sed -i -E \
   "s/(The flake pins Logchef \*\*v)[0-9]+\.[0-9]+\.[0-9]+(\*\*)/\1${version}\2/" \
   README.md
@@ -38,7 +39,7 @@ sed -i -E \
   "s/(The package is built from Logchef v)[0-9]+\.[0-9]+\.[0-9]+/\1${version}/" \
   docs/01-getting-started/01-install.md
 sed -i -E \
-  "s|(mr-karan/logchef/blob/v)[0-9]+\.[0-9]+\.[0-9]+/|\1${version}/|g" \
+  "s|(mr-karan/logchef/blob/v)[0-9]+\.[0-9]+\.[0-9]+(/config\.toml)|\1${version}\2|g" \
   README.md docs/*.md docs/*/*.md
 
 bash tests/check-version-docs.sh
