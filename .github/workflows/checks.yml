@@ -57,3 +57,24 @@ jobs:
 
       - name: Lint GitHub Actions
         run: nix run nixpkgs#actionlint
+
+  checks-aarch64:
+    name: Nix checks (aarch64-linux)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out the change
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+
+      - name: Build the native package and module evaluation
+        run: >-
+          nix build
+          .#checks.aarch64-linux.package
+          .#checks.aarch64-linux.moduleEvaluation
+          -L --no-link
